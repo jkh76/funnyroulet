@@ -133,24 +133,25 @@ body.locked .panel{pointer-events:none;opacity:.45;filter:saturate(.5)}
 .pop-sub{font-weight:700;font-size:15px;opacity:.8}
 
 
-/* ===== 폰 가로 화면: 룰렛 오른쪽에 세로 슬라이더 ===== */
-@media (orientation:landscape) and (max-height:600px){
-  .app{grid-template-columns:1fr;padding:6px 12px 20px;gap:12px}
+/* ===== 가로 화면(높이 1000px 이하): 룰렛 오른쪽에 세로 슬라이더, 화면 높이에 맞춤 ===== */
+@media (orientation:landscape) and (max-height:1000px){
+  .app{padding:8px 16px 20px;gap:20px;align-items:start}
   .stage-col{display:grid;grid-template-columns:auto 96px;grid-template-areas:"top top" "cam power";
-    justify-content:center;align-items:stretch;column-gap:18px;row-gap:2px}
+    justify-content:center;align-items:stretch;column-gap:18px;row-gap:4px}
   .top{grid-area:top;max-width:none;padding:0}
-  .top h1,.logo{font-size:38px}
-  .icon-btn{width:36px;height:36px;font-size:16px;border-radius:10px}
-  .camera{grid-area:cam;height:calc(100vh - 62px);height:calc(100dvh - 62px);width:auto;border-radius:22px}
-  .power{grid-area:power;width:auto;height:calc(100vh - 62px);height:calc(100dvh - 62px);padding:4px 0 12px;
-    display:flex;flex-direction:column;align-items:center}
+  .top h1,.logo{font-size:42px}
+  .icon-btn{width:38px;height:38px;font-size:17px;border-radius:11px}
+  .camera{grid-area:cam;height:auto;border-radius:22px;
+    width:min(calc((100vh - 80px)*0.97), calc(100vw - 170px));
+    width:min(calc((100dvh - 80px)*0.97), calc(100vw - 170px))}
+  .power{grid-area:power;width:auto;height:auto;padding:4px 0 12px;display:flex;flex-direction:column;align-items:center}
   .power-head{flex-direction:column;align-items:center;gap:6px;margin-bottom:14px}
   #powerLabel{font-size:13px;text-align:center;white-space:nowrap}
   #powerVal{min-width:0;text-align:center}
   .track{flex:1;width:26px;height:auto;min-height:120px}
-  .fill-clip{top:auto;bottom:0;right:0;width:auto !important;height:0;
-    background:linear-gradient(0deg,#7cff6b,#ffd60a 50%,#ff8a00 72%,#ff2d55);background-size:100% var(--th,300px);background-position:bottom}
-  .thumb{left:50% !important;top:auto;transform:translate(-50%,50%)}
+  .fill-clip{top:0;bottom:auto;right:0;width:auto !important;height:0;
+    background:linear-gradient(180deg,#7cff6b,#ffd60a 50%,#ff8a00 72%,#ff2d55);background-size:100% var(--th,300px);background-position:top}
+  .thumb{left:50% !important;top:0;transform:translate(-50%,-50%)}
   .track.max .thumb{animation:shakeV .07s infinite}
   .ticks,.hint{display:none}
   .overlay{padding-bottom:3vh}
@@ -159,7 +160,17 @@ body.locked .panel{pointer-events:none;opacity:.45;filter:saturate(.5)}
   .result-name{font-size:52px;margin:2px 0 10px}
   .btn{height:40px}
 }
-@keyframes shakeV{0%{transform:translate(calc(-50% - 2px),50%)}50%{transform:translate(calc(-50% + 2px),calc(50% - 1px))}100%{transform:translate(calc(-50% - 1px),calc(50% + 1px))}}
+/* 좁은 가로 화면: 칸 목록은 아래로 */
+@media (orientation:landscape) and (max-height:1000px) and (max-width:1099px){
+  .app{grid-template-columns:1fr}
+}
+/* 넓은 가로 화면: 칸 목록은 오른쪽에 두고 룰렛 크기를 남은 폭에 맞춤 */
+@media (orientation:landscape) and (max-height:1000px) and (min-width:1100px){
+  .app{grid-template-columns:minmax(0,1fr) 360px}
+  .camera{width:min(calc((100vh - 80px)*0.97), calc(100vw - 600px));
+    width:min(calc((100dvh - 80px)*0.97), calc(100vw - 600px))}
+}
+@keyframes shakeV{0%{transform:translate(calc(-50% - 2px),-50%)}50%{transform:translate(calc(-50% + 2px),calc(-50% - 1px))}100%{transform:translate(calc(-50% - 1px),calc(-50% + 1px))}}
 
 /* ===== 입력 화면 ===== */
 .view-hidden{display:none!important}
@@ -745,15 +756,16 @@ function powerText(v){
   return ['최대!', '#ff2d55'];
 }
 // 폰 가로 화면이면 슬라이더를 세로로
-const vertMQ = matchMedia('(orientation: landscape) and (max-height: 600px)');
+const vertMQ = matchMedia('(orientation: landscape) and (max-height: 1000px)');
 vertMQ.addEventListener('change', () => { resizeFx(); setPower(power.v); });
 function setPower(v){
+  v = Math.max(0, Math.min(100, v));   // 0 아래(100 위)로는 절대 안 넘어가게
   power.v = v;
   if (vertMQ.matches){
-    thumb.style.bottom = v + '%'; thumb.style.left = '';
+    thumb.style.top = v + '%'; thumb.style.left = '';
     fillClip.style.height = v + '%'; fillClip.style.width = '';
   } else {
-    thumb.style.left = v + '%'; thumb.style.bottom = '';
+    thumb.style.left = v + '%'; thumb.style.top = '';
     fillClip.style.width = v + '%'; fillClip.style.height = '';
   }
   powerVal.textContent = Math.round(v);
@@ -765,7 +777,7 @@ function setPower(v){
 }
 function valueFromEvent(e){
   const r = track.getBoundingClientRect();
-  const v = vertMQ.matches ? (r.bottom - e.clientY)/r.height*100 : (e.clientX - r.left)/r.width*100;
+  const v = vertMQ.matches ? (e.clientY - r.top)/r.height*100 : (e.clientX - r.left)/r.width*100;
   return Math.max(0, Math.min(100, v));
 }
 function beginPull(){
@@ -790,14 +802,15 @@ track.addEventListener('keydown', e => {
     e.preventDefault();
     if (!power.dragging && !beginPull()) return;
     ensureAudio();
-    const d = (e.key === 'ArrowRight' || e.key === 'ArrowUp') ? 5 : -5;
+    const up = vertMQ.matches ? (e.key === 'ArrowRight' || e.key === 'ArrowDown') : (e.key === 'ArrowRight' || e.key === 'ArrowUp');
+    const d = up ? 5 : -5;
     setPower(Math.max(0, Math.min(100, power.v + d)));
   } else if (e.key === 'Enter' || e.key === ' '){
     e.preventDefault(); endPull();
   }
 });
 function springBack(){
-  gsap.to(power, { v:0, duration:.9, ease:'elastic.out(1,0.35)', onUpdate:() => setPower(power.v) });
+  gsap.to(power, { v:0, duration:.6, ease:'bounce.out', onUpdate:() => setPower(power.v) });
 }
 function release(v){
   track.classList.remove('max');
