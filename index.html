@@ -39,27 +39,25 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .icon-btn{width:46px;height:46px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:20px;transition:background .2s}
 .icon-btn:hover{background:rgba(255,255,255,.12)}
 
-.camera{position:relative;width:min(620px,100%);aspect-ratio:524/540;overflow:hidden;border-radius:32px;
+.camera{position:relative;isolation:isolate;width:min(620px,100%);aspect-ratio:524/540;overflow:hidden;border-radius:32px;
   background:radial-gradient(60% 55% at 50% 48%, rgba(178,102,255,.25), transparent 70%);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 20px 60px rgba(0,0,0,.35);}
 .spot{position:absolute;inset:-20% 10% 30%;background:radial-gradient(50% 60% at 50% 0%, rgba(255,240,200,.16), transparent 70%);pointer-events:none}
-.zoom{position:absolute;inset:0;will-change:transform}
-#wheel{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55))}
+.zoom{position:absolute;inset:0}
+#wheel{width:100%;height:100%;display:block;overflow:visible}
 .vignette{position:absolute;inset:0;pointer-events:none;opacity:0;
   background:radial-gradient(55% 45% at 50% 22%, transparent 35%, rgba(4,2,14,.85) 100%)}
 
 #slots text{font-family:var(--display);font-weight:700;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:rgba(0,0,0,.18);stroke-width:1.2px;pointer-events:none}
-.slot path{stroke:#0b0820;stroke-width:2;stroke-linejoin:round;transition:filter .15s}
-.slot{transition:opacity .14s}
-#wheel.focus .slot{opacity:.28}
-#wheel.focus .slot.hot{opacity:1}
+.slot path{stroke:#0b0820;stroke-width:2;stroke-linejoin:round}
+#dimDisk{pointer-events:none}
 .slot.hot path{stroke:#fff;stroke-width:3.5}
 .slot.win path{filter:url(#winGlow)}
 .pin{fill:#f4f2ff;stroke:#4b3f7a;stroke-width:1.5}
-.bulb{fill:#3a2f55;transition:fill .08s}
+.bulb{fill:#3a2f55;transition:fill .35s ease}
 .bulb.on{fill:#fffbe0}
-.halo{fill:#ffe78a;opacity:0;transition:opacity .08s}
-.halo.on{opacity:.75}
+.halo{fill:url(#haloGrad);opacity:0;transition:opacity .35s ease}
+.halo.on{opacity:.7}
 #hubCore text{font-family:var(--display);font-weight:700;text-anchor:middle;dominant-baseline:central}
 
 /* ===== 강도 슬라이더 ===== */
@@ -163,27 +161,27 @@ body.locked .panel{pointer-events:none;opacity:.45;filter:saturate(.5)}
 }
 /* ===== 입력 화면: 밝은 테마 ===== */
 .setup{background:
-  radial-gradient(700px 500px at 10% 0%, #ffe1ee 0%, transparent 60%),
-  radial-gradient(700px 500px at 100% 100%, #d9f3ff 0%, transparent 60%),
-  linear-gradient(160deg,#fffaf2,#fff1f6 55%,#eef8ff);color:#2a1d4a}
-.setup .setup-card{background:#fff;border:1px solid #f0e6f6;box-shadow:0 24px 60px rgba(120,60,160,.15),0 2px 6px rgba(120,60,160,.06);backdrop-filter:none;-webkit-backdrop-filter:none}
+  radial-gradient(700px 500px at 10% 0%, #fbf3e4 0%, transparent 60%),
+  radial-gradient(700px 500px at 100% 100%, #eadcc4 0%, transparent 60%),
+  linear-gradient(160deg,#f7efe2,#f1e6d3 55%,#ece0cb);color:#3a2a1c}
+.setup .setup-card{background:#fffaf2;border:1px solid #eadfcc;box-shadow:0 24px 60px rgba(120,90,50,.16),0 2px 6px rgba(120,90,50,.06);backdrop-filter:none;-webkit-backdrop-filter:none}
 .setup .logo{background:linear-gradient(90deg,#ff3d7f,#ff8a00 50%,#8b4dff);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 3px 0 rgba(255,61,127,.15))}
-.setup .sub,.setup .range-hint,.setup .num,.setup .pct{color:#8a81a8}
-.setup .field label{color:#2a1d4a}
-.setup .count button{background:#f4f0fb;border-color:#e7def5;color:#2a1d4a}
-.setup .count input{background:#faf8ff;border-color:#e7def5;color:#2a1d4a}
-.setup .seg{background:#f3eefb}
-.setup .seg button{color:#8a81a8}
+.setup .sub,.setup .range-hint,.setup .num,.setup .pct{color:#9a8a72}
+.setup .field label{color:#3a2a1c}
+.setup .count button{background:#f3eadb;border-color:#e4d6bf;color:#3a2a1c}
+.setup .count input{background:#fffaf2;border-color:#e4d6bf;color:#3a2a1c}
+.setup .seg{background:#efe5d3}
+.setup .seg button{color:#9a8a72}
 .setup .seg button.on{color:#fff}
-.setup .row{background:#faf7ff;border:1px solid #f0eaf9}
-.setup .txt{background:#fff;border:1px solid #e7def5;color:#2a1d4a}
-.setup .txt::placeholder{color:#b7aecd}
+.setup .row{background:#fbf5ea;border:1px solid #ece0cc}
+.setup .txt{background:#fff;border:1px solid #e4d6bf;color:#3a2a1c}
+.setup .txt::placeholder{color:#c4b59c}
 .setup .txt:focus{border-color:#ff3d7f;box-shadow:0 0 0 3px rgba(255,61,127,.15)}
 .setup .chip{box-shadow:0 2px 6px rgba(0,0,0,.12), inset 0 0 0 2px rgba(255,255,255,.5)}
 .setup .err{color:#e8245e}
-.setup .link-btn{color:#8a81a8}
+.setup .link-btn{color:#9a8a72}
 .setup .btn.primary{color:#fff}
-.setup .list::-webkit-scrollbar-thumb{background:#e2d8f2}
+.setup .list::-webkit-scrollbar-thumb{background:#e4d6bf}
 
 /* ===== 모바일: 가로 꽉 차게 ===== */
 @media (max-width:600px){
@@ -250,26 +248,33 @@ body.locked .panel{pointer-events:none;opacity:.45;filter:saturate(.5)}
               <stop offset=".55" stop-color="#fff" stop-opacity=".03"/>
               <stop offset="1" stop-color="#000" stop-opacity=".3"/>
             </radialGradient>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="6" result="b"/>
-              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
+            
             <filter id="winGlow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="10" result="b"/>
               <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
-            <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
+            <radialGradient id="shadowGrad">
+              <stop offset=".8" stop-color="#000" stop-opacity=".55"/>
+              <stop offset="1" stop-color="#000" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="haloGrad">
+              <stop offset="0" stop-color="#ffe78a" stop-opacity=".9"/>
+              <stop offset="1" stop-color="#ffe78a" stop-opacity="0"/>
+            </radialGradient>
           </defs>
 
-          <circle r="248" fill="rgba(0,0,0,.4)" filter="url(#soft)"/>
-          <circle r="230" fill="#0d0a22" stroke="url(#rimGrad)" stroke-width="18" filter="url(#glow)"/>
+          <circle r="262" cy="10" fill="url(#shadowGrad)"/>
+          <circle r="230" fill="none" stroke="url(#rimGrad)" stroke-width="34" opacity=".28"/>
+          <circle r="230" fill="#0d0a22" stroke="url(#rimGrad)" stroke-width="18"/>
           <g id="spinner">
             <g id="slots"></g>
             <g id="pins"></g>
+            <circle id="dimDisk" r="212" fill="#06040f" opacity="0"/>
+            <g id="hotLayer"></g>
           </g>
           <circle r="212" fill="url(#gloss)" pointer-events="none"/>
           <circle r="212" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="1.5"/>
-          <g id="halos" filter="url(#soft)"></g>
+          <g id="halos"></g>
           <g id="bulbs"></g>
           <g id="hubCore">
             <circle r="46" fill="#120c2a" stroke="url(#rimGrad)" stroke-width="5"/>
@@ -278,7 +283,8 @@ body.locked .panel{pointer-events:none;opacity:.45;filter:saturate(.5)}
             <text y="14" font-size="30" fill="#5cf2ff">룰렛</text>
           </g>
           <g id="pointer">
-            <path d="M-22 -258 L22 -258 L0 -194 Z" fill="#ffd60a" stroke="#fff3a6" stroke-width="3" stroke-linejoin="round" filter="url(#glow)"/>
+            <path d="M-22 -258 L22 -258 L0 -194 Z" fill="none" stroke="#ffd60a" stroke-width="12" stroke-linejoin="round" opacity=".3"/>
+            <path d="M-22 -258 L22 -258 L0 -194 Z" fill="#ffd60a" stroke="#fff3a6" stroke-width="3" stroke-linejoin="round"/>
             <circle cx="0" cy="-258" r="10" fill="#1d1540" stroke="#ffd60a" stroke-width="3.5"/>
           </g>
           <circle id="tipMark" cx="0" cy="-200" r="1" fill="none"/>
@@ -354,12 +360,13 @@ const BULBS = 24;
 let S = { mode:'equal', slots:[], history:[], muted:false };
 let disp = [];          // 화면에 그려지는 비율(트윈용)
 let angles = [];        // [시작각, 끝각] (12시=0°, 시계방향)
-let hotIdx = -1, lastWin = -1;
+let hotIdx = -1, lastWin = -1, hubBreath = null;
 let cardOpen = false, spinning = false;
 
 /* ---------- 요소 ---------- */
 const wheelSvg = $('#wheel'), spinner = $('#spinner'), slotsLayer = $('#slots'), pinsLayer = $('#pins');
 const pointerG = $('#pointer'), zoomEl = $('#zoom'), vignette = $('#vignette');
+const hotLayer = $('#hotLayer'), dimDisk = $('#dimDisk');
 const track = $('#track'), thumb = $('#thumb'), fillClip = $('#fillClip');
 const powerLabel = $('#powerLabel'), powerVal = $('#powerVal');
 const list = $('#list'), countInput = $('#countInput');
@@ -485,6 +492,7 @@ function renderWheel(){
   });
   slotsLayer.innerHTML = sh;
   pinsLayer.innerHTML = ph;
+  hotLayer.textContent = '';
   hotIdx = -1;
 }
 
@@ -503,7 +511,7 @@ const bulbEls = [], haloEls = [];
   for (let i=0;i<BULBS;i++){
     const [x,y] = pt(230, i*360/BULBS + 360/BULBS/2);
     const h = document.createElementNS(ns,'circle');
-    h.setAttribute('cx',x); h.setAttribute('cy',y); h.setAttribute('r',10); h.setAttribute('class','halo');
+    h.setAttribute('cx',x); h.setAttribute('cy',y); h.setAttribute('r',13); h.setAttribute('class','halo');
     $('#halos').appendChild(h); haloEls.push(h);
     const b = document.createElementNS(ns,'circle');
     b.setAttribute('cx',x); b.setAttribute('cy',y); b.setAttribute('r',5); b.setAttribute('class','bulb');
@@ -511,7 +519,7 @@ const bulbEls = [], haloEls = [];
   }
 })();
 let bulbMode = 'idle', bulbStep = 0, bulbCall = null;
-const BULB_DELAY = { idle:.22, spin:.055, tense:.3, win:.12 };
+const BULB_DELAY = { idle:.5, spin:.16, tense:.55, win:.4 };
 function bulbLoop(){
   bulbStep++;
   for (let i=0;i<BULBS;i++){
@@ -694,12 +702,12 @@ function indexAt(a){
 }
 const getRot = () => gsap.getProperty(spinner, 'rotation');
 
+// 강조 칸: 그룹 opacity(매 프레임 비싼 합성) 대신, 어두운 원판 위에 해당 칸 복제본만 올림
 function setHot(i){
   if (hotIdx === i) return;
-  const prev = slotsLayer.querySelector('.slot.hot');
-  if (prev) prev.classList.remove('hot');
   const g = slotsLayer.querySelector(`.slot[data-i="${i}"]`);
-  if (g){ g.classList.add('hot'); slotsLayer.appendChild(g); }
+  hotLayer.textContent = '';
+  if (g){ const c = g.cloneNode(true); c.classList.add('hot'); hotLayer.appendChild(c); }
   hotIdx = i;
 }
 function flick(){
@@ -829,12 +837,13 @@ function startSpin(p){
 
   sWhoosh();
   setBulbMode('spin');
+  if (hubBreath) hubBreath.pause();
   gsap.timeline({ onComplete:() => finish(idx) })
     .to(spinner, { rotation:final + over, svgOrigin:'0 0', duration:D, ease:'power3.out', onUpdate:onUpd })
     .add(() => {
       zoomed = true;
       const rest = D - zoomAt;
-      wheelSvg.classList.add('focus');
+      gsap.to(dimDisk, { opacity:.72, duration:.35 });
       setHot(lastIdx);
       setBulbMode('tense');
       gsap.to(zoomEl, { scale: reduceMotion ? 1.35 : 1.9, duration:Math.max(.6, rest*.9), ease:'power2.inOut' });
@@ -847,7 +856,7 @@ function finish(idx){
   gsap.set(spinner, { rotation: ((getRot() % 360) + 360) % 360, svgOrigin:'0 0' });
   spinning = false; cardOpen = true; lastWin = idx;
   setHot(idx);
-  const g = slotsLayer.querySelector(`.slot[data-i="${idx}"]`);
+  const g = hotLayer.firstElementChild;
   if (!g){ celebrate(idx); return; }
   g.classList.add('win');
   gsap.timeline()
@@ -895,7 +904,7 @@ function closeCard(remove){
   gsap.to(resultCard, { scale:.85, opacity:0, duration:.25, onComplete:() => gsap.set(overlay, { autoAlpha:0 }) });
   gsap.to(zoomEl, { scale:1, duration:.7, ease:'power3.inOut' });
   gsap.to(vignette, { opacity:0, duration:.5 });
-  wheelSvg.classList.remove('focus');
+  gsap.to(dimDisk, { opacity:0, duration:.4 });
   if (remove && S.slots.length > 2 && lastWin >= 0){
     S.slots.splice(lastWin, 1);
     disp.splice(lastWin, 1);
@@ -907,6 +916,7 @@ function closeCard(remove){
   }
   document.body.classList.remove('locked');
   setBulbMode('idle');
+  if (hubBreath) hubBreath.resume();
   save();
 }
 $('#againBtn').addEventListener('click', () => closeCard(false));
@@ -1074,7 +1084,7 @@ renderSetup(false);
 resizeFx();
 setPower(0);
 setBulbMode('idle');
-gsap.to('#hubCore', { scale:1.05, svgOrigin:'0 0', duration:1.4, ease:'sine.inOut', yoyo:true, repeat:-1 });
+hubBreath = gsap.to('#hubCore', { scale:1.05, svgOrigin:'0 0', duration:1.4, ease:'sine.inOut', yoyo:true, repeat:-1 });
 gsap.from('.setup-card', { y:30, opacity:0, duration:.6, ease:'power3.out' });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (!gameView.classList.contains('view-hidden')) renderWheel(); });
 })();
