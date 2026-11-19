@@ -40,8 +40,9 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .icon-btn:hover{background:rgba(255,255,255,.12)}
 
 .camera{position:relative;width:min(620px,100%);aspect-ratio:524/540;overflow:hidden;border-radius:32px;
-  background:radial-gradient(60% 55% at 50% 48%, rgba(178,102,255,.22), transparent 70%);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);}
+  background:radial-gradient(60% 55% at 50% 48%, rgba(178,102,255,.25), rgba(10,6,30,.38) 75%);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 20px 60px rgba(0,0,0,.35);}
 .spot{position:absolute;inset:-20% 10% 30%;background:radial-gradient(50% 60% at 50% 0%, rgba(255,240,200,.16), transparent 70%);pointer-events:none}
 .zoom{position:absolute;inset:0;will-change:transform}
 #wheel{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55))}
@@ -134,6 +135,15 @@ body.locked .panel{pointer-events:none;opacity:.45;filter:saturate(.5)}
 .pop-title{font-family:var(--display);font-weight:700;font-size:clamp(60px,11vw,96px);line-height:1;margin:8px 0 4px}
 .pop-sub{font-weight:700;font-size:15px;opacity:.8}
 
+/* ===== 놀이동산 배경 ===== */
+.park{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#0a0820}
+#park{position:absolute;top:-30px;left:-30px;width:calc(100% + 60px);height:calc(100% + 60px);filter:blur(5px) saturate(1.3);will-change:filter}
+.bokeh span{position:absolute;border-radius:50%;filter:blur(16px);mix-blend-mode:screen}
+.park-photo{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(7px) saturate(1.15);opacity:0}
+.park.has-photo #park{display:none}
+.park-shade{position:absolute;inset:0;background:radial-gradient(75% 65% at 50% 45%, rgba(8,5,26,.2), rgba(8,5,26,.7))}
+.setup,.app{position:relative;z-index:1}
+
 /* ===== 입력 화면 ===== */
 .view-hidden{display:none!important}
 .setup{min-height:100vh;display:grid;place-items:center;padding:24px}
@@ -161,9 +171,56 @@ body.locked .panel{pointer-events:none;opacity:.45;filter:saturate(.5)}
   .panel{position:static}
   .list{max-height:none}
 }
+/* ===== 입력 화면: 밝은 테마 ===== */
+.setup{background:
+  radial-gradient(700px 500px at 10% 0%, #ffe1ee 0%, transparent 60%),
+  radial-gradient(700px 500px at 100% 100%, #d9f3ff 0%, transparent 60%),
+  linear-gradient(160deg,#fffaf2,#fff1f6 55%,#eef8ff);color:#2a1d4a}
+.setup .setup-card{background:#fff;border:1px solid #f0e6f6;box-shadow:0 24px 60px rgba(120,60,160,.15),0 2px 6px rgba(120,60,160,.06);backdrop-filter:none;-webkit-backdrop-filter:none}
+.setup .logo{background:linear-gradient(90deg,#ff3d7f,#ff8a00 50%,#8b4dff);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 3px 0 rgba(255,61,127,.15))}
+.setup .sub,.setup .range-hint,.setup .num,.setup .pct{color:#8a81a8}
+.setup .field label{color:#2a1d4a}
+.setup .count button{background:#f4f0fb;border-color:#e7def5;color:#2a1d4a}
+.setup .count input{background:#faf8ff;border-color:#e7def5;color:#2a1d4a}
+.setup .seg{background:#f3eefb}
+.setup .seg button{color:#8a81a8}
+.setup .seg button.on{color:#fff}
+.setup .row{background:#faf7ff;border:1px solid #f0eaf9}
+.setup .txt{background:#fff;border:1px solid #e7def5;color:#2a1d4a}
+.setup .txt::placeholder{color:#b7aecd}
+.setup .txt:focus{border-color:#ff3d7f;box-shadow:0 0 0 3px rgba(255,61,127,.15)}
+.setup .chip{box-shadow:0 2px 6px rgba(0,0,0,.12), inset 0 0 0 2px rgba(255,255,255,.5)}
+.setup .err{color:#e8245e}
+.setup .link-btn{color:#8a81a8}
+.setup .btn.primary{color:#fff}
+.setup .list::-webkit-scrollbar-thumb{background:#e2d8f2}
+
+/* ===== 모바일: 가로 꽉 차게 ===== */
+@media (max-width:600px){
+  .setup{padding:0;place-items:stretch}
+  .setup-card{width:100%;min-height:100vh;border-radius:0;border:0;padding:22px 14px 28px}
+  .setup .list{max-height:none}
+  .row{gap:6px;padding:6px}
+  .row{grid-template-columns:18px 28px minmax(0,1fr) 70px 40px}
+  .list.equal .row{grid-template-columns:18px 28px minmax(0,1fr) 40px}
+  .app{padding:0 0 20px;gap:14px}
+  .top{padding:12px 14px 0}
+  .camera{width:100%;border-radius:0}
+  .power{width:100%;padding:4px 24px 0}
+  .panel{padding:0 10px}
+  .sec{border-radius:18px}
+}
+
 </style>
 </head>
 <body>
+<div class="park" aria-hidden="true">
+  <svg id="park" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice"></svg>
+  <div class="park-photo" id="photo1"></div>
+  <div class="park-photo" id="photo2"></div>
+  <div class="bokeh" id="bokeh"></div>
+  <div class="park-shade"></div>
+</div>
 <section class="setup" id="setupView">
   <div class="setup-card">
     <h1 class="logo">벌칙 룰렛</h1>
@@ -1023,6 +1080,138 @@ $('#shuffleBtn').addEventListener('click', () => {
   gsap.fromTo(spinner, { rotation:getRot() - 120 }, { rotation:getRot(), svgOrigin:'0 0', duration:.8, ease:'back.out(1.6)' });
   gsap.from('#legend li', { x:16, opacity:0, duration:.3, stagger:.025 });
 });
+
+/* ---------- 놀이동산 배경 ---------- */
+(function buildPark(){
+  const svg = $('#park'), ns = 'http://www.w3.org/2000/svg';
+  let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+  const el = (tag, attrs, parent = svg) => { const e = document.createElementNS(ns, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+  const COLORS = ['#ff3d7f','#ffd60a','#00e5ff','#7cff6b','#b266ff','#ff8a00'];
+  const bulb = (parent, x, y, r, i) => el('circle', { cx:x.toFixed(1), cy:y.toFixed(1), r, fill:COLORS[i % COLORS.length], class: i % 2 ? 'tw-a' : 'tw-b' }, parent);
+
+  const defs = el('defs', {});
+  const sky = el('linearGradient', { id:'sky', x1:0, y1:0, x2:0, y2:1 }, defs);
+  [['0','#0a0820'],['.45','#26104d'],['.75','#5e1c6a'],['1','#b8406a']].forEach(([o,c]) => el('stop', { offset:o, 'stop-color':c }, sky));
+  const glow = el('radialGradient', { id:'moonGlow' }, defs);
+  el('stop', { offset:'0', 'stop-color':'#fff3d6', 'stop-opacity':'.6' }, glow);
+  el('stop', { offset:'1', 'stop-color':'#fff3d6', 'stop-opacity':'0' }, glow);
+
+  el('rect', { width:1600, height:900, fill:'url(#sky)' });
+  for (let i=0;i<90;i++) el('circle', { cx:(rnd()*1600).toFixed(1), cy:(rnd()*460).toFixed(1), r:(.6+rnd()*1.4).toFixed(2), fill:'#fff', opacity:(.3+rnd()*.7).toFixed(2) });
+  el('circle', { cx:250, cy:140, r:130, fill:'url(#moonGlow)' });
+  el('circle', { cx:250, cy:140, r:44, fill:'#fff3d6' });
+
+  // 먼 언덕
+  el('path', { d:'M0 720 C 200 660 380 700 560 680 C 760 655 940 700 1120 670 C 1300 640 1460 690 1600 660 L1600 900 L0 900 Z', fill:'#1d1038' });
+
+  // 롤러코스터
+  const coaster = el('g', {});
+  const trackD = 'M-40 650 C 100 650 170 300 300 300 C 430 300 440 640 560 640 C 640 640 660 470 720 470 C 790 470 800 660 900 680';
+  const track = el('path', { d:trackD, fill:'none', stroke:'#ff3d7f', 'stroke-width':7 }, coaster);
+  el('path', { d:trackD, fill:'none', stroke:'#b266ff', 'stroke-width':4, transform:'translate(0 14)' }, coaster);
+  const L = track.getTotalLength();
+  for (let d=0, i=0; d<L; d+=34, i++){
+    const p = track.getPointAtLength(d);
+    if (i % 2 === 0) el('line', { x1:p.x, y1:p.y+14, x2:p.x, y2:880, stroke:'#2e1d5a', 'stroke-width':3 }, coaster);
+    bulb(coaster, p.x, p.y - 7, 4, i);
+  }
+  const car = el('g', { id:'coasterCar' }, coaster);
+  ['#ffd60a','#00e5ff','#ff8a00'].forEach((c,k) => el('rect', { x:-14 - k*32, y:-20, width:28, height:18, rx:6, fill:c }, car));
+
+  // 드롭 타워
+  el('rect', { x:968, y:220, width:22, height:660, fill:'#2c1d55' });
+  el('rect', { x:950, y:205, width:58, height:22, rx:6, fill:'#ff3d7f' });
+  for (let i=0;i<22;i++) bulb(svg, 979, 245 + i*28, 4, i+1);
+
+  // 회전목마
+  const cx = 740, base = 700, w = 170;
+  el('rect', { x:cx-150, y:base, width:300, height:170, fill:'#2a1650' });
+  for (let k=0;k<5;k++) el('rect', { x:cx-130 + k*62, y:base, width:6, height:170, fill:'#ffd60a', opacity:.7 });
+  for (let k=0;k<8;k++){
+    const x0 = cx - w + k*(2*w/8), x1 = x0 + 2*w/8;
+    el('path', { d:`M${cx} 590 L${x0} ${base} L${x1} ${base} Z`, fill: k % 2 ? '#fff0f5' : '#ff3d7f' });
+  }
+  for (let k=0;k<=12;k++) el('circle', { cx:cx - w + k*(2*w/12), cy:base, r:12, fill: k % 2 ? '#ffd60a' : '#ff3d7f' });
+  el('path', { d:`M${cx} 590 L${cx} 555 L${cx+30} 566 L${cx} 576`, fill:'#ffd60a', stroke:'#ffd60a', 'stroke-width':3 });
+  for (let k=0;k<=12;k++) bulb(svg, cx - w + k*(2*w/12), base + 20, 4, k);
+
+  // 대관람차
+  const fx0 = 1250, fy0 = 390, FR = 270;
+  el('path', { d:`M${fx0} ${fy0} L${fx0-170} 880 M${fx0} ${fy0} L${fx0+170} 880`, stroke:'#3b2a66', 'stroke-width':14, 'stroke-linecap':'round' });
+  const ferris = el('g', { id:'ferris' });
+  el('circle', { cx:fx0, cy:fy0, r:FR, fill:'none', stroke:'#ffd60a', 'stroke-width':5 }, ferris);
+  el('circle', { cx:fx0, cy:fy0, r:FR-40, fill:'none', stroke:'#ff3d7f', 'stroke-width':3 }, ferris);
+  for (let k=0;k<18;k++){
+    const a = k/18*Math.PI*2, x = fx0 + Math.cos(a)*FR, y = fy0 + Math.sin(a)*FR;
+    el('line', { x1:fx0, y1:fy0, x2:x, y2:y, stroke:'rgba(255,255,255,.35)', 'stroke-width':2 }, ferris);
+    el('rect', { x:x-15, y:y-12, width:30, height:26, rx:8, fill:COLORS[k % COLORS.length] }, ferris);
+  }
+  for (let k=0;k<40;k++){ const a = k/40*Math.PI*2; bulb(ferris, fx0 + Math.cos(a)*(FR-20), fy0 + Math.sin(a)*(FR-20), 4.5, k); }
+  el('circle', { cx:fx0, cy:fy0, r:24, fill:'#ffd60a' }, ferris);
+
+  // 전구 줄
+  [[-20,30,800,30],[800,30,1620,30]].forEach(([x0,y0,x1,y1], n) => {
+    const line = el('path', { d:`M${x0} ${y0} Q ${(x0+x1)/2} ${y0+170} ${x1} ${y1}`, fill:'none', stroke:'#3a2a5c', 'stroke-width':2 });
+    const LL = line.getTotalLength();
+    for (let i=1;i<26;i++){ const p = line.getPointAtLength(LL*i/26); bulb(svg, p.x, p.y + 8, 7, i + n); }
+  });
+
+  // 땅
+  el('rect', { x:0, y:870, width:1600, height:30, fill:'#120a26' });
+
+  // 보케 빛망울
+  const bokeh = $('#bokeh');
+  for (let i=0;i<16;i++){
+    const s = document.createElement('span'), size = 50 + rnd()*130;
+    Object.assign(s.style, { width:size+'px', height:size+'px', left:(rnd()*100)+'%', top:(rnd()*100)+'%',
+      background:COLORS[i % COLORS.length], opacity:(.18 + rnd()*.25).toFixed(2) });
+    bokeh.appendChild(s);
+  }
+
+  if (reduceMotion) return;
+  gsap.to(ferris, { rotation:360, svgOrigin:`${fx0} ${fy0}`, duration:120, ease:'none', repeat:-1 });
+  gsap.to('#park .tw-a', { opacity:.25, duration:.9, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  gsap.fromTo('#park .tw-b', { opacity:.25 }, { opacity:1, duration:.9, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  // 롤러코스터 차량이 레일을 따라 달림
+  const prog = { d:0 };
+  gsap.to(prog, { d:L, duration:9, ease:'none', repeat:-1, repeatDelay:2, onUpdate(){
+    const p = track.getPointAtLength(prog.d), q = track.getPointAtLength(Math.min(L, prog.d + 2));
+    const ang = Math.atan2(q.y - p.y, q.x - p.x) * 180/Math.PI;
+    car.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${ang.toFixed(1)})`);
+  }});
+  bokeh.querySelectorAll('span').forEach(sp => gsap.to(sp, { x:gsap.utils.random(-60,60), y:gsap.utils.random(-50,50), duration:gsap.utils.random(6,12), repeat:-1, yoyo:true, ease:'sine.inOut' }));
+})();
+
+/* ---------- Canva 배경 사진 (bg1.jpg, bg2.jpg가 있으면 사용, 없으면 그린 배경) ---------- */
+(function usePhotos(){
+  const files = ['bg1.jpg', 'bg2.jpg'], ok = [];
+  let done = 0;
+  files.forEach((f, i) => {
+    const im = new Image();
+    im.onload = () => { ok[i] = f; finish(); };
+    im.onerror = finish;
+    im.src = f;
+  });
+  function finish(){
+    if (++done < files.length) return;
+    const list = ok.filter(Boolean);
+    if (!list.length) return;
+    $('.park').classList.add('has-photo');
+    const layers = [$('#photo1'), $('#photo2')];
+    list.forEach((f, i) => layers[i].style.backgroundImage = `url('${f}')`);
+    gsap.to(layers[0], { opacity:1, duration:1.2 });
+    if (list.length < 2 || reduceMotion) return;
+    let cur = 0;
+    gsap.delayedCall(9, function swap(){
+      const next = 1 - cur;
+      gsap.to(layers[next], { opacity:1, duration:2, ease:'sine.inOut' });
+      gsap.to(layers[cur], { opacity:0, duration:2, ease:'sine.inOut' });
+      cur = next;
+      gsap.delayedCall(9, swap);
+    });
+    layers.forEach(l => gsap.fromTo(l, { scale:1 }, { scale:1.06, duration:18, repeat:-1, yoyo:true, ease:'sine.inOut' }));
+  }
+})();
 
 /* ---------- 시작 ---------- */
 load();
