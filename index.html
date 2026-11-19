@@ -54,10 +54,10 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .slot.hot path{stroke:#fff;stroke-width:3.5}
 .slot.win path{filter:url(#winGlow)}
 .pin{fill:#f4f2ff;stroke:#4b3f7a;stroke-width:1.5}
-.bulb{fill:#3a2f55;transition:fill .35s ease}
+.bulb{fill:#3a2f55}
 .bulb.on{fill:#fffbe0}
-.halo{fill:url(#haloGrad);opacity:0;transition:opacity .35s ease}
-.halo.on{opacity:.7}
+.halo{fill:url(#haloGrad);opacity:0}
+.halo.on{opacity:.55}
 #hubCore text{font-family:var(--display);font-weight:700;text-anchor:middle;dominant-baseline:central}
 
 /* ===== 강도 슬라이더 ===== */
@@ -84,7 +84,7 @@ body.locked .track{opacity:.45;pointer-events:none}
 /* ===== 설정 패널 ===== */
 .panel{display:flex;flex-direction:column;gap:16px;position:sticky;top:22px;transition:opacity .25s,filter .25s}
 body.locked .panel{pointer-events:none;opacity:.45;filter:saturate(.5)}
-.sec{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.sec{background:rgba(22,17,48,.92);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
 .sec h2{margin:0;font-size:17px;font-weight:800;letter-spacing:-.2px}
 .sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .count{display:flex;align-items:center;gap:6px}
@@ -136,7 +136,7 @@ body.locked .panel{pointer-events:none;opacity:.45;filter:saturate(.5)}
 .view-hidden{display:none!important}
 .setup{min-height:100vh;display:grid;place-items:center;padding:24px}
 .setup-card{width:min(580px,100%);background:var(--panel);border:1px solid var(--line);border-radius:28px;padding:28px 26px;
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 30px 80px rgba(0,0,0,.45)}
+  box-shadow:0 30px 80px rgba(0,0,0,.45)}
 .logo{text-align:center;margin:0 0 6px !important}
 .sub{text-align:center;color:var(--muted);margin:0 0 22px;font-size:15px}
 .field{display:flex;align-items:center;gap:14px;margin-bottom:14px}
@@ -518,21 +518,10 @@ const bulbEls = [], haloEls = [];
     $('#bulbs').appendChild(b); bulbEls.push(b);
   }
 })();
-let bulbMode = 'idle', bulbStep = 0, bulbCall = null;
-const BULB_DELAY = { idle:.5, spin:.16, tense:.55, win:.4 };
-function bulbLoop(){
-  bulbStep++;
-  for (let i=0;i<BULBS;i++){
-    let on;
-    if (bulbMode === 'win') on = bulbStep % 2 === 0;
-    else if (bulbMode === 'spin') on = (i + bulbStep) % 3 === 0;
-    else on = (i + bulbStep) % 4 === 0;
-    bulbEls[i].classList.toggle('on', on);
-    haloEls[i].classList.toggle('on', on);
-  }
-  bulbCall = gsap.delayedCall(BULB_DELAY[bulbMode], bulbLoop);
+// 전구는 깜빡이지 않고 항상 켜진 상태로 고정 (모바일 깜빡임 방지)
+function setBulbMode(){
+  for (let i=0;i<BULBS;i++){ bulbEls[i].classList.add('on'); haloEls[i].classList.add('on'); }
 }
-function setBulbMode(m){ bulbMode = m; if (bulbCall) bulbCall.kill(); bulbLoop(); }
 
 /* ---------- 사운드 (Web Audio 합성) ---------- */
 let actx = null, master = null, noiseBuf = null;
@@ -1132,7 +1121,6 @@ renderSetup(false);
 resizeFx();
 setPower(0);
 setBulbMode('idle');
-hubBreath = gsap.to('#hubCore', { scale:1.05, svgOrigin:'0 0', duration:1.4, ease:'sine.inOut', yoyo:true, repeat:-1 });
 gsap.from('.setup-card', { y:30, opacity:0, duration:.6, ease:'power3.out' });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (!gameView.classList.contains('view-hidden')) renderWheel(); });
 })();
