@@ -48,7 +48,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .vignette{position:absolute;inset:0;pointer-events:none;opacity:0;
   background:radial-gradient(55% 45% at 50% 22%, transparent 35%, rgba(4,2,14,.85) 100%)}
 
-#slots text{font-family:var(--display);font-weight:700;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:rgba(0,0,0,.18);stroke-width:1.2px;pointer-events:none}
+#slots text,#hotLayer text{font-family:var(--display);font-weight:700;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:rgba(0,0,0,.18);stroke-width:1.2px;pointer-events:none}
 .slot path{stroke:#0b0820;stroke-width:2;stroke-linejoin:round}
 #dimDisk{pointer-events:none}
 .slot.hot path{stroke:#fff;stroke-width:3.5}
@@ -861,7 +861,6 @@ function finish(idx){
   g.classList.add('win');
   gsap.timeline()
     .to(g.querySelector('path'), { opacity:.35, duration:.1, repeat:5, yoyo:true, ease:'none' })
-    .to(g.querySelector('.lbl') || {}, { scale:1.22, transformOrigin:'50% 50%', duration:.45, ease:'back.out(3)' }, '<')
     .add(() => celebrate(idx), .6);
 }
 
@@ -934,14 +933,58 @@ function fillDraft(from){
   for (let i=draft.length;i<15;i++) draft.push({ text:'', color:autoColor(i, draft), weight:50 });
 }
 function draftWeights(){ return draft.slice(0, draftN).map(s => draftMode === 'equal' ? 1 : s.weight); }
+/* 비율: 칸마다 %로 정하고 합계는 항상 100%, 칸당 최소 5% */
+const MIN_P = 5;
+const maxP = () => 100 - MIN_P*(draftN - 1);
+function roundTo(p, total){
+  const fl = p.map(x => Math.max(MIN_P, Math.floor(x)));
+  let diff = total - fl.reduce((a,b)=>a+b,0);
+  const order = p.map((x,i) => [x - Math.floor(x), i]).sort((a,b) => b[0] - a[0]);
+  for (let k=0; diff > 0; k = (k+1) % order.length){ fl[order[k][1]]++; diff--; }
+  for (let k=0; diff < 0 && k < 1000; k++){            // 혹시 넘치면 큰 칸부터 깎기
+    const j = fl.indexOf(Math.max(...fl)); if (fl[j] <= MIN_P) break; fl[j]--; diff++;
+  }
+  return fl;
+}
+function fitPercents(ws, total){
+  const n = ws.length, sum = ws.reduce((a,b)=>a+b,0) || 1;
+  let p = ws.map(w => w/sum*total);
+  for (let it=0; it<n; it++){
+    const low = p.map(x => x < MIN_P);
+    if (!low.some(Boolean)) break;
+    const fixed = low.filter(Boolean).length*MIN_P;
+    const rest = p.reduce((a,x,i) => a + (low[i] ? 0 : x), 0) || 1;
+    const k = (total - fixed)/rest;
+    p = p.map((x,i) => low[i] ? MIN_P : x*k);
+  }
+  return roundTo(p, total);
+}
+function normalizeDraft(){
+  const used = draft.slice(0, draftN);
+  const fit = fitPercents(used.map(s => Math.max(+s.weight || 1, .01)), 100);
+  used.forEach((s,i) => s.weight = fit[i]);
+}
+// i번 칸을 v%로 → 나머지 칸은 (5%를 넘는 몫)에 비례해서 줄이거나 늘림
+function rebalance(i, v){
+  const n = draftN;
+  v = Math.max(MIN_P, Math.min(maxP(), Math.round(v)));
+  const others = [...Array(n).keys()].filter(j => j !== i);
+  const target = 100 - v, free = target - MIN_P*others.length;
+  const ex = others.map(j => draft[j].weight - MIN_P), E = ex.reduce((a,b)=>a+b,0);
+  const raw = others.map((j,k) => MIN_P + (E > 0 ? free*ex[k]/E : free/others.length));
+  const fit = roundTo(raw, target);
+  draft[i].weight = v;
+  others.forEach((j,k) => draft[j].weight = fit[k]);
+}
 function updatePcts(){
   const ws = draftWeights(), sum = ws.reduce((a,b)=>a+b,0) || 1;
   list.querySelectorAll('.row').forEach((row,i) => {
     const p = ws[i]/sum*100;
-    row.querySelector('.pct').textContent = (p >= 10 ? p.toFixed(0) : p.toFixed(1)) + '%';
+    row.querySelector('.pct').textContent = draftMode === 'ratio' ? Math.round(p) + '%' : (p >= 10 ? p.toFixed(0) : p.toFixed(1)) + '%';
   });
 }
 function renderSetup(focusFirst){
+  if (draftMode === 'ratio') normalizeDraft();
   countInput.value = draftN;
   $('#minusBtn').disabled = draftN <= 2;
   $('#plusBtn').disabled = draftN >= 15;
@@ -953,7 +996,7 @@ function renderSetup(focusFirst){
       <span class="num">${i+1}</span>
       <label class="chip" style="background:${sl.color};color:${sl.color}" title="색 바꾸기"><input type="color" value="${sl.color}" aria-label="${i+1}번 칸 색"></label>
       <input class="txt" type="text" maxlength="12" placeholder="${i+1}번 칸 내용" value="${esc(sl.text)}" aria-label="${i+1}번 칸 내용">
-      <div class="ratio"><input type="range" min="1" max="100" value="${sl.weight}" aria-label="${i+1}번 칸 비율"></div>
+      <div class="ratio"><input type="range" min="${MIN_P}" max="${maxP()}" step="1" value="${sl.weight}" aria-label="${i+1}번 칸 비율"></div>
       <span class="pct"></span>
     </div>`).join('');
   updatePcts();
@@ -991,7 +1034,12 @@ list.addEventListener('input', e => {
     sl.color = e.target.value;
     const chip = e.target.parentElement; chip.style.background = sl.color; chip.style.color = sl.color;
   } else if (e.target.type === 'range'){
-    sl.weight = +e.target.value; updatePcts();
+    rebalance(+row.dataset.i, +e.target.value);
+    list.querySelectorAll('.row').forEach((r,j) => {
+      const inp = r.querySelector('input[type=range]');
+      if (inp !== e.target || +inp.value !== draft[j].weight) inp.value = draft[j].weight;
+    });
+    updatePcts();
   }
 });
 list.addEventListener('keydown', e => {
@@ -1060,7 +1108,7 @@ function renderLegend(){
   $('#slotCount').textContent = `${S.slots.length}칸 · ${S.mode === 'equal' ? '균등' : '비율'}`;
   $('#legend').innerHTML = S.slots.map((s,i) => {
     const p = ws[i]/sum*100;
-    return `<li><span class="dot" style="background:${s.color};box-shadow:0 0 8px ${s.color}"></span>${esc(labelOf(i))}<span class="p">${p >= 10 ? p.toFixed(0) : p.toFixed(1)}%</span></li>`;
+    return `<li><span class="dot" style="background:${s.color};box-shadow:0 0 8px ${s.color}"></span>${esc(labelOf(i))}<span class="p">${S.mode === 'ratio' ? Math.round(p) : (p >= 10 ? p.toFixed(0) : p.toFixed(1))}%</span></li>`;
   }).join('');
 }
 $('#shuffleBtn').addEventListener('click', () => {
