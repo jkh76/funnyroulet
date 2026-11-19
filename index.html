@@ -132,6 +132,35 @@ body.locked .panel{pointer-events:none;opacity:.45;filter:saturate(.5)}
 .pop-title{font-family:var(--display);font-weight:700;font-size:clamp(60px,11vw,96px);line-height:1;margin:8px 0 4px}
 .pop-sub{font-weight:700;font-size:15px;opacity:.8}
 
+
+/* ===== 폰 가로 화면: 룰렛 오른쪽에 세로 슬라이더 ===== */
+@media (orientation:landscape) and (max-height:600px){
+  .app{grid-template-columns:1fr;padding:6px 12px 20px;gap:12px}
+  .stage-col{display:grid;grid-template-columns:auto 96px;grid-template-areas:"top top" "cam power";
+    justify-content:center;align-items:stretch;column-gap:18px;row-gap:2px}
+  .top{grid-area:top;max-width:none;padding:0}
+  .top h1,.logo{font-size:38px}
+  .icon-btn{width:36px;height:36px;font-size:16px;border-radius:10px}
+  .camera{grid-area:cam;height:calc(100vh - 62px);height:calc(100dvh - 62px);width:auto;border-radius:22px}
+  .power{grid-area:power;width:auto;height:calc(100vh - 62px);height:calc(100dvh - 62px);padding:4px 0 12px;
+    display:flex;flex-direction:column;align-items:center}
+  .power-head{flex-direction:column;align-items:center;gap:6px;margin-bottom:14px}
+  #powerLabel{font-size:13px;text-align:center;white-space:nowrap}
+  #powerVal{min-width:0;text-align:center}
+  .track{flex:1;width:26px;height:auto;min-height:120px}
+  .fill-clip{top:auto;bottom:0;right:0;width:auto !important;height:0;
+    background:linear-gradient(0deg,#7cff6b,#ffd60a 50%,#ff8a00 72%,#ff2d55);background-size:100% var(--th,300px);background-position:bottom}
+  .thumb{left:50% !important;top:auto;transform:translate(-50%,50%)}
+  .track.max .thumb{animation:shakeV .07s infinite}
+  .ticks,.hint{display:none}
+  .overlay{padding-bottom:3vh}
+  .result{padding:14px 22px 14px}
+  .kicker{font-size:13px}
+  .result-name{font-size:52px;margin:2px 0 10px}
+  .btn{height:40px}
+}
+@keyframes shakeV{0%{transform:translate(calc(-50% - 2px),50%)}50%{transform:translate(calc(-50% + 2px),calc(50% - 1px))}100%{transform:translate(calc(-50% - 1px),calc(50% + 1px))}}
+
 /* ===== 입력 화면 ===== */
 .view-hidden{display:none!important}
 .setup{min-height:100vh;display:grid;place-items:center;padding:24px}
@@ -298,7 +327,7 @@ body.locked .panel{pointer-events:none;opacity:.45;filter:saturate(.5)}
         <span id="powerLabel">당겼다가 놓으세요</span>
         <b id="powerVal">0</b>
       </div>
-      <div class="track" id="track" role="slider" tabindex="0" aria-label="회전 강도" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="track" id="track" role="slider" tabindex="0" aria-label="회전 강도" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
         <div class="fill-clip" id="fillClip"></div>
         <div class="thumb" id="thumb"></div>
       </div>
@@ -617,6 +646,7 @@ function resizeFx(){
   fx.width = innerWidth*d; fx.height = innerHeight*d;
   c2.setTransform(d,0,0,d,0,0);
   track.style.setProperty('--tw', track.clientWidth + 'px');
+  track.style.setProperty('--th', track.clientHeight + 'px');
 }
 addEventListener('resize', resizeFx);
 function startFx(){ if (!fxOn){ fxOn = true; gsap.ticker.add(stepFx); } }
@@ -714,10 +744,18 @@ function powerText(v){
   if (v < 85) return ['세게', '#ff8a00'];
   return ['최대!', '#ff2d55'];
 }
+// 폰 가로 화면이면 슬라이더를 세로로
+const vertMQ = matchMedia('(orientation: landscape) and (max-height: 600px)');
+vertMQ.addEventListener('change', () => { resizeFx(); setPower(power.v); });
 function setPower(v){
   power.v = v;
-  thumb.style.left = v + '%';
-  fillClip.style.width = v + '%';
+  if (vertMQ.matches){
+    thumb.style.bottom = v + '%'; thumb.style.left = '';
+    fillClip.style.height = v + '%'; fillClip.style.width = '';
+  } else {
+    thumb.style.left = v + '%'; thumb.style.bottom = '';
+    fillClip.style.width = v + '%'; fillClip.style.height = '';
+  }
   powerVal.textContent = Math.round(v);
   const [t, c] = powerText(v);
   powerLabel.textContent = t; powerLabel.style.color = c;
@@ -727,7 +765,8 @@ function setPower(v){
 }
 function valueFromEvent(e){
   const r = track.getBoundingClientRect();
-  return Math.max(0, Math.min(100, (e.clientX - r.left)/r.width*100));
+  const v = vertMQ.matches ? (r.bottom - e.clientY)/r.height*100 : (e.clientX - r.left)/r.width*100;
+  return Math.max(0, Math.min(100, v));
 }
 function beginPull(){
   if (spinning || cardOpen) return false;
@@ -1074,7 +1113,9 @@ function showGame(){
     setupView.classList.add('view-hidden');
     gsap.set(setupView, { opacity:1, scale:1 });
     gameView.classList.remove('view-hidden');
+    window.scrollTo(0, 0);
     resizeFx();
+    setPower(power.v);
     gsap.fromTo('#wheel', { scale:.6, opacity:0, rotation:-120 }, { scale:1, opacity:1, rotation:0, duration:1.1, ease:'back.out(1.4)' });
     gsap.fromTo('.sec', { x:30, opacity:0 }, { x:0, opacity:1, duration:.5, stagger:.1, ease:'power3.out', delay:.2 });
   }});
@@ -1086,6 +1127,7 @@ function showSetup(){
   draftN = S.slots.length; draftMode = S.mode;
   gameView.classList.add('view-hidden');
   setupView.classList.remove('view-hidden');
+  window.scrollTo(0, 0);
   renderSetup(false);
   gsap.fromTo('.setup-card', { y:30, opacity:0 }, { y:0, opacity:1, duration:.45, ease:'power3.out' });
 }
